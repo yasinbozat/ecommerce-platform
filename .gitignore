@@ -1,0 +1,18 @@
+# Go
+*/bin/
+*.exe
+*.test
+*.out
+
+# Env dosyaları (asla commit etme)
+.env
+.env.local
+**/.env
+
+# IDE
+.idea/
+.vscode/
+
+# Docker
+infra/postgres_data/
+infra/elasticsearch_data/
