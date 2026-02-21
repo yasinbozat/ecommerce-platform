@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/yasinbozat/ecommerce-platform/services/user-service/internal/domain"
 	"github.com/yasinbozat/ecommerce-platform/services/user-service/internal/service"
 )
 
@@ -21,7 +22,10 @@ func (h *AuthHandler) Validate(c *fiber.Ctx) error {
 	token := strings.TrimPrefix(c.Get("Authorization"), "Bearer ")
 	validateTokenResp, err := h.service.ValidateToken(c.UserContext(), token)
 	if err != nil {
-		return fiber.ErrUnauthorized
+		if err == domain.ErrKeycloakUnreachable {
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{"error": err.Error()})
+		}
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 	}
 	c.Set("X-User-ID", validateTokenResp.UserId.String())
 	c.Set("X-User-Role", string(validateTokenResp.Role))
