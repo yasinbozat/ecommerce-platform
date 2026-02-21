@@ -28,6 +28,10 @@ func main() {
 
 	app := fiber.New()
 
+	prometheus := fiberprometheus.New("user-service")
+	prometheus.RegisterAt(app, "/metrics")
+	app.Use(prometheus.Middleware)
+
 	// internal route (no middleware)
 	app.Get("/internal/auth/validate", authHandler.Validate)
 
@@ -40,7 +44,7 @@ func main() {
 
 	// address routes
 	api.Get("/users/me/addresses", addressHandler.List)
-	api.Post("/users/me/adresses", addressHandler.Create)
+	api.Post("/users/me/addresses", addressHandler.Create)
 	api.Put("/users/me/addresses/:id", addressHandler.Update)
 	api.Delete("/users/me/addresses/:id", addressHandler.Delete)
 	api.Patch("/users/me/addresses/:id/default", addressHandler.SetDefault)
@@ -49,10 +53,6 @@ func main() {
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
-
-	prometheus := fiberprometheus.New("user-service")
-	prometheus.RegisterAt(app, "/metrics")
-	app.Use(prometheus.Middleware)
 
 	app.Listen(":" + cfg.App.Port)
 }
