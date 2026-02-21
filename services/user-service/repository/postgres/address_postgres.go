@@ -30,7 +30,7 @@ func (r *addressPostgres) FindByID(ctx context.Context, id uuid.UUID) (*domain.A
 }
 func (r *addressPostgres) FindAllByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Address, error) {
 	var address []*domain.Address
-	result := r.db.WithContext(ctx).Where("user_id = ?", userID).Select(address)
+	result := r.db.WithContext(ctx).Where("user_id = ?", userID).Find(address)
 	if result.Error != nil {
 		return nil, result.Error
 	}

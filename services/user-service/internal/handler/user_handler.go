@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/yasinbozat/ecommerce-platform/services/user-service/internal/domain"
 	"github.com/yasinbozat/ecommerce-platform/services/user-service/internal/service"
 )
@@ -38,11 +37,14 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
 	}
-	var req domain.UpdateProfileRequest
-	if err := c.BodyParser(&req); err != nil {
+
+	req, err := parseBody[domain.UpdateProfileRequest](c)
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	user, err := h.service.UpdateProfile(c.Context(), id, &req)
+
+	user, err := h.service.UpdateProfile(c.Context(), id, req)
+
 	if err != nil {
 		if err == domain.ErrUserNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
@@ -51,8 +53,4 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(user)
-}
-
-func parseUserID(c *fiber.Ctx) (uuid.UUID, error) {
-	return uuid.Parse(c.Get("X-User-ID"))
 }
