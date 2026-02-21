@@ -79,3 +79,53 @@ func (h *AddressHandler) Update(c *fiber.Ctx) error {
 
 	return c.JSON(address)
 }
+
+func (h *AddressHandler) Delete(c *fiber.Ctx) error {
+	userID, err := parseUserID(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
+	}
+
+	addressID, err := parseAddressID(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	err = h.service.DeleteAddress(c.Context(), userID, addressID)
+	if err != nil {
+		switch err {
+		case domain.ErrAddressNotFound:
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+		case domain.ErrAddressNotOwned:
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": err.Error()})
+		default:
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+	}
+	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *AddressHandler) SetDefault(c *fiber.Ctx) error {
+	userID, err := parseUserID(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user id"})
+	}
+
+	addressID, err := parseAddressID(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	err = h.service.SetDefaultAddress(c.Context(), userID, addressID)
+	if err != nil {
+		switch err {
+		case domain.ErrAddressNotFound:
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+		case domain.ErrAddressNotOwned:
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": err.Error()})
+		default:
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
+}
