@@ -49,6 +49,43 @@ services:
       timeout: 5s
       retries: 5
 
+
+  # ============================================================
+  # User Service
+  # # http://localhost:8081
+  # ============================================================
+  user-service:
+    build:
+      context: ../services/user-service
+      dockerfile: Dockerfile
+    container_name: ecommerce-user-service
+    restart: unless-stopped
+    environment:
+      APP_PORT: 8081
+      APP_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: users_db
+      DB_USER: ecommerce
+      DB_PASSWORD: ecommerce123
+      DB_SSLMODE: disable
+      REDIS_ADDR: redis:6379
+      REDIS_PASSWORD: redis123
+      REDIS_DB: 0
+      KEYCLOAK_URL: http://keycloak:8180
+      KEYCLOAK_REALM: ecommerce
+      KEYCLOAK_CLIENT_ID: ecommerce-service
+      KEYCLOAK_CLIENT_SECRET: service-secret-change-in-production
+      JAEGER_ENDPOINT: http://jaeger:4318/v1/traces
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - redis
+      - keycloak
+    networks:
+      - ecommerce-net
+
   # ============================================================
   # REDIS
   # ============================================================
