@@ -54,16 +54,18 @@ func Load() *Config {
 			Password: getEnv("DB_PASSWORD", "ecommerce123"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		}, Redis: RedisConfig{
-			Addr:     getEnv("REDIS_ADDR", "localhost:6379"),
+			Addr:     getEnv("REDIS_ADDR", "redis:6379"),
 			Password: getEnv("REDIS_PASSWORD", "redis123"),
 			DB:       getEnv("REDIS_DB", "0")},
 		Keycloak: KeycloakConfig{
-			Url:          getEnv("KEYCLOAK_URL", "http://localhost:8180"),
+			Url:          getEnv("KEYCLOAK_URL", "http://keycloak:8180"),
 			Realm:        getEnv("KEYCLOAK_REALM", "ecommerce"),
 			ClientID:     getEnv("KEYCLOAK_CLIENT_ID", "ecommerce-service"),
 			ClientSecret: getEnv("KEYCLOAK_CLIENT_SECRET", "service-secret"),
 		},
-		Jaeger: JaegerConfig{Endpoint: getEnv("JAEGER_ENDPOINT", "http://localhost:4318/v1/traces")},
+		Jaeger: JaegerConfig{
+			Endpoint: getEnv("JAEGER_ENDPOINT", "jaeger:4318"), // http:// olmadan
+		},
 	}
 
 }
