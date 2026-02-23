@@ -14,7 +14,7 @@ import (
 
 type IAuthService interface {
 	ValidateToken(ctx context.Context, token string) (*domain.ValidateTokenResponse, error)
-	SyncUser(ctx context.Context, keycloakID string) (*domain.User, error)
+	SyncUser(ctx context.Context, keycloakID, fullName, email string) (*domain.User, error)
 }
 
 type authService struct {
@@ -33,6 +33,7 @@ type keycloakIntrospectResponse struct {
 	Active bool   `json:"active"`
 	Sub    string `json:"sub"`
 	Email  string `json:"email"`
+	Name   string `json:"name"`
 }
 
 func (s *authService) ValidateToken(ctx context.Context, token string) (*domain.ValidateTokenResponse, error) {
@@ -66,7 +67,7 @@ func (s *authService) ValidateToken(ctx context.Context, token string) (*domain.
 		return nil, domain.ErrInvalidToken
 	}
 
-	user, err := s.SyncUser(ctx, introspect.Sub)
+	user, err := s.SyncUser(ctx, introspect.Sub, introspect.Name, introspect.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +80,7 @@ func (s *authService) ValidateToken(ctx context.Context, token string) (*domain.
 	}, nil
 }
 
-func (s *authService) SyncUser(ctx context.Context, keycloakID string) (*domain.User, error) {
+func (s *authService) SyncUser(ctx context.Context, keycloakID, fullName, email string) (*domain.User, error) {
 	user, err := s.userRepo.FindByKeycloakID(ctx, keycloakID)
 	if err != nil {
 		return nil, err
@@ -91,6 +92,8 @@ func (s *authService) SyncUser(ctx context.Context, keycloakID string) (*domain.
 	// kullanıcı yoksa oluştur
 	newUser := &domain.User{
 		KeycloakId: keycloakID,
+		Email:      email,
+		FullName:   fullName,
 		Role:       domain.RoleCustomer,
 		IsActive:   true,
 	}
