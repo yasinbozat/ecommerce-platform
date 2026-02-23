@@ -76,7 +76,7 @@ services:
       KEYCLOAK_REALM: ecommerce
       KEYCLOAK_CLIENT_ID: ecommerce-service
       KEYCLOAK_CLIENT_SECRET: service-secret-change-in-production
-      JAEGER_ENDPOINT: http://jaeger:4318/v1/traces
+      JAEGER_ENDPOINT: jaeger:4318
     ports:
       - "8081:8081"
     depends_on:
