@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
+
 	"github.com/ansrivas/fiberprometheus/v2"
+	"github.com/gofiber/contrib/otelfiber"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/yasinbozat/ecommerce-platform/services/user-service/internal/config"
 	"github.com/yasinbozat/ecommerce-platform/services/user-service/internal/handler"
 	"github.com/yasinbozat/ecommerce-platform/services/user-service/internal/middleware"
@@ -16,6 +20,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	tp, err := config.NewTracer(cfg)
+	if err != nil {
+		panic(err)
+	}
+	defer tp.Shutdown(context.Background())
+
 	userRepo := postgres.NewUserRepository(db)
 	addressRepo := postgres.NewAddressRepository(db)
 
@@ -27,6 +37,8 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 
 	app := fiber.New()
+	app.Use(logger.New())
+	app.Use(otelfiber.Middleware())
 
 	prometheus := fiberprometheus.New("user-service")
 	prometheus.RegisterAt(app, "/metrics")
