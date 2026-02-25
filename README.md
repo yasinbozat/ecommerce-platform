@@ -46,7 +46,7 @@ Async Communication (Kafka)
 
 | Layer | Technology |
 |---|---|
-| Language | Go 1.22+ |
+| Language | Go 1.25+ |
 | HTTP Framework | Fiber v2 |
 | ORM | GORM |
 | Database | PostgreSQL 16 |
